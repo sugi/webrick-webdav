@@ -1,0 +1,7 @@
+*~
+.#*
+.*.sw[po]
+*.bak
+*.orig
+*.old
+*.gem
