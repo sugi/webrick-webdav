@@ -2,7 +2,7 @@
 # webdavhandler.rb - WEBrick WebDAV handler
 #
 #  Author: Tatsuki Sugiura <sugi@nemui.org>
-#  License: Ruby's
+#  License: BSD-2-Clause or GPL-3
 #
 
 require 'time'
@@ -48,7 +48,7 @@ module WEBrick
     new_StatusMessage.each{|code, message|
       var_name = message.gsub(/[ \-]/,'_').upcase
       err_name = message.gsub(/[ \-]/,'')
-      
+
       case code
       when 100...200; parent = Info
       when 200...300; parent = Success
@@ -96,7 +96,7 @@ class WebDAVHandler < FileHandler
       end
 
       def chk_utf8(req)
-        begin 
+        begin
           Iconv.iconv("UTF-8", "UTF-8", req.path, req.path_info)
           {"UTF-8" => 40}
         rescue Iconv::IllegalSequence
@@ -112,7 +112,7 @@ class WebDAVHandler < FileHandler
           {@options[:DefaultClientCodingUnix] => 10}
         when /darwin|MacOSX/
           {"UTF-8" => 20}
-        else 
+        else
           {}
         end
       end
@@ -121,7 +121,7 @@ class WebDAVHandler < FileHandler
         {@options[:DefaultClientCoding] => 20}
       end
     end # Detector
-  
+
     def initialize(options={}, default=Config::WebDAVHandler)
       @options = default.merge(options)
       @detect_meth = [:default, :chk_utf8, :dav_ua, :chk_os]
@@ -394,7 +394,7 @@ class WebDAVHandler < FileHandler
 
 
   ######################
-  private 
+  private
 
   def get_handler(req)
     return DefaultFileHandler
@@ -491,7 +491,7 @@ class WebDAVHandler < FileHandler
                                   r_uri+HTTPUtils.escape(
                                     codeconv_str_fscode2utf("/#{d}/"))),
                                 props, depth)
-      else 
+      else
         ret_set << [HTTPUtils.normalize_path(
                       r_uri+HTTPUtils.escape(
                         codeconv_str_fscode2utf("/#{d}"))),
@@ -508,7 +508,7 @@ class WebDAVHandler < FileHandler
       st = File::lstat(file)
       pe = REXML::Element.new "D:prop"
       props.each {|pname|
-        begin 
+        begin
           if respond_to?("get_prop_#{pname}", true)
             pe << __send__("get_prop_#{pname}", file, st)
           else
