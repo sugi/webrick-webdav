@@ -9,17 +9,9 @@ require 'time'
 require 'fileutils.rb'
 require 'rexml/document'
 require 'webrick/httpservlet/filehandler'
-require 'iconv'
+require 'iconv' # TODO: remove
 
 module WEBrick
-  class HTTPRequest
-    # buffer is too small to transport huge files...
-    if BUFSIZE < 512 * 1024
-      remove_const :BUFSIZE
-      BUFSIZE = 512 * 1024
-    end
-  end
-
   module Config
     webdavconf = {
       :FileSystemCoding        => "UTF-8",
@@ -35,12 +27,12 @@ module WEBrick
 
   module HTTPStatus
     new_StatusMessage = {
-      102, 'Processing',
-      207, 'Multi-Status',
-      422, 'Unprocessable Entity',
-      423, 'Locked',
-      424, 'Failed Dependency',
-      507, 'Insufficient Storage',
+      102 => 'Processing',
+      207 => 'Multi-Status',
+      422 => 'Unprocessable Entity',
+      423 => 'Locked',
+      424 => 'Failed Dependency',
+      507 => 'Insufficient Storage',
     }
     StatusMessage.each_key {|k| new_StatusMessage.delete(k)}
     StatusMessage.update new_StatusMessage
@@ -178,6 +170,7 @@ class WebDAVHandler < FileHandler
   end # CodeConvFilter
 
   def initialize(server, root, options={}, default=Config::WebDAVHandler)
+    # TODO: get default root from config
     super
     @cconv = CodeConvFilter.new(@options)
   end
@@ -396,7 +389,7 @@ class WebDAVHandler < FileHandler
   ######################
   private
 
-  def get_handler(req)
+  def get_handler(req, res)
     return DefaultFileHandler
   end
 

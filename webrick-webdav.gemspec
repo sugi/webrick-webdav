@@ -10,6 +10,7 @@ Gem::Specification.new do |s|
   s.email = "sugi@nemui.org"
   s.homepage = "https://github.com/sugi/webrick-webdav"
   s.required_ruby_version = '>= 1.9.3'
+  s.add_runtime_dependency 'iconv'
 
   s.files = Dir['lib/**/*']
 end
