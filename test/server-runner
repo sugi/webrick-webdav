@@ -1,0 +1,10 @@
+#!/usr/bin/ruby
+require 'pathname'
+$:.unshift Pathname.new(File.dirname(__FILE__)).join("../lib").to_s
+
+require 'webrick'
+require 'webrick/httpservlet/webdavhandler'
+
+server = WEBrick::HTTPServer.new Port: 8000
+server.mount '/', WEBrick::HTTPServlet::WebDAVHandler, ARGV[0] || Dir.getwd
+server.start
