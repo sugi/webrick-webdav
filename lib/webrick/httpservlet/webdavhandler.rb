@@ -346,7 +346,7 @@ class WebDAVHandler < FileHandler
     @logger.debug "copy #{src} -> #{dest}"
     begin
       if depth.nil? # infinity
-        FileUtils.cp_r(src, dest, {:preserve => true})
+        FileUtils.cp_r(src.chomp('/'), dest.chomp('/'), {:preserve => true})
       elsif depth == 0
         if File.directory?(src)
           st = File.stat(src)
