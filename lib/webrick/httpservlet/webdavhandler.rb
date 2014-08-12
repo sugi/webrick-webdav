@@ -357,7 +357,7 @@ class WebDAVHandler < FileHandler
             # simply ignore
           end
         else
-          FileUtils.cp(src, dest, {:preserve => true})
+          FileUtils.cp(src.chomp('/'), dest.chomp('/'), {:preserve => true})
         end
       end
     rescue Errno::ENOENT
@@ -374,7 +374,7 @@ class WebDAVHandler < FileHandler
     src, dest, depth, exists_p = cp_mv_precheck(req, res)
     @logger.debug "rename #{src} -> #{dest}"
     begin
-      File.rename(src, dest)
+      File.rename(src.chomp('/'), dest.chomp('/'))
     rescue Errno::ENOENT
       raise HTTPStatus::Conflict
       # FIXME: use multi status(?) and check error URL.
