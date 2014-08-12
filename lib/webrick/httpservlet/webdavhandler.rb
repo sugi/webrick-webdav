@@ -221,7 +221,7 @@ class WebDAVHandler < FileHandler
     elsif !REXML::XPath.match(req_doc, "/propfind/prop", ns).empty?
       REXML::XPath.each(req_doc, "/propfind/prop/*", ns){|e|
         e.namespace == "" and raise HTTPStatus::BadRequest
-        req_props << e.name
+        req_props << e
       }
     else
       raise HTTPStatus::BadRequest
@@ -265,7 +265,7 @@ class WebDAVHandler < FileHandler
       rescue Errno::EACCES, ArgumentError
         ps << elem_status(req, res, HTTPStatus::Conflict)
       rescue Unsupported
-        ps << elem_status(req, res, HTTPStatus::Forbidden)
+        ps << elem_status(req, res, HTTPStatus::UnprocessableEntity)
       rescue
         ps << elem_status(req, res, HTTPStatus::InternalServerError)
       end
@@ -505,8 +505,11 @@ class WebDAVHandler < FileHandler
     begin
       st = File::lstat(file)
       pe = REXML::Element.new "D:prop"
-      props.each {|pname|
+      status = HTTPStatus::OK
+      props.each {|prop|
+        pname = prop.name
         begin
+          prop.namespace != 'DAV:' and raise Unsupported
           if respond_to?("get_prop_#{pname}", true)
             pe << __send__("get_prop_#{pname}", file, st)
           else
@@ -514,12 +517,16 @@ class WebDAVHandler < FileHandler
           end
         rescue IgnoreProp
           # simple ignore
-        rescue HTTPStatus::Status
+        rescue Unsupported
+          pe << gen_element(pname, "", 'xmlns' => prop.namespace)
+          status = HTTPStatus::UnprocessableEntity
+        rescue HTTPStatus::Status => e
+          status = e
           # FIXME: add to errstat
         end
       }
       propstat.elements << pe
-      propstat.elements << elem_status(req, res, HTTPStatus::OK)
+      propstat.elements << elem_status(req, res, status)
     rescue
       propstat.elements << elem_status(req, res, HTTPStatus::InternalServerError)
     end
