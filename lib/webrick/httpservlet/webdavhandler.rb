@@ -230,7 +230,7 @@ class WebDAVHandler < FileHandler
     ret = get_rec_prop(req, res, res.filename,
                        HTTPUtils.escape(codeconv_str_fscode2utf(req.path)),
                        req_props, *[depth].compact)
-    res.body << build_multistat(ret).to_s(0)
+    res.body << build_multistat(ret).to_s
     res["Content-Type"] = 'text/xml; charset="utf-8"'
     raise HTTPStatus::MultiStatus
   end
@@ -271,7 +271,7 @@ class WebDAVHandler < FileHandler
       end
       ret << ps
     }
-    res.body << build_multistat([[req.request_uri, *ret]]).to_s(0)
+    res.body << build_multistat([[req.request_uri, *ret]]).to_s
     res["Content-Type"] = 'text/xml; charset="utf-8"'
     raise HTTPStatus::MultiStatus
   end
