@@ -29,6 +29,7 @@ module WEBrick
     new_StatusMessage = {
       102 => 'Processing',
       207 => 'Multi-Status',
+      415 => 'Unsupported Media Type',
       422 => 'Unprocessable Entity',
       423 => 'Locked',
       424 => 'Failed Dependency',
@@ -275,16 +276,18 @@ class WebDAVHandler < FileHandler
   end
 
   def do_MKCOL(req, res)
-    req.body.nil? or raise HTTPStatus::MethodNotAllowed
+    req.body.nil? or raise HTTPStatus::UnsupportedMediaType
     begin
       @logger.debug "mkdir #{@root+req.path_info}"
       Dir.mkdir(@root + req.path_info)
-    rescue Errno::ENOENT, Errno::EACCES
+    rescue Errno::ENOENT
+      raise HTTPStatus::Conflict
+    rescue Errno::EACCES
       raise HTTPStatus::Forbidden
     rescue Errno::ENOSPC
       raise HTTPStatus::InsufficientStorage
     rescue Errno::EEXIST
-      raise HTTPStatus::Conflict
+      raise HTTPStatus::MethodNotAllowed
     end
     raise HTTPStatus::Created
   end
@@ -335,6 +338,7 @@ class WebDAVHandler < FileHandler
     rescue Errno::ENOSPC
       raise HTTPStatus::InsufficientStorage
     end
+    raise HTTPStatus::Created
   end
 
   def do_COPY(req, res)
