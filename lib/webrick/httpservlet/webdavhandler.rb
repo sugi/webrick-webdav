@@ -220,6 +220,7 @@ class WebDAVHandler < FileHandler
       raise HTTPStatus::NotImplemented
     elsif !REXML::XPath.match(req_doc, "/propfind/prop", ns).empty?
       REXML::XPath.each(req_doc, "/propfind/prop/*", ns){|e|
+        e.namespace == "" and raise HTTPStatus::BadRequest
         req_props << e.name
       }
     else
